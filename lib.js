@@ -96,7 +96,7 @@ export async function predict(imgElement) {
   console.log(`Done in ${Math.floor(totalTime1)} ms ` +
       `(not including preprocessing: ${Math.floor(totalTime2)} ms)`);
 
-  await new Promise(r => setTimeout(r, 2500));
+  // await new Promise(r => setTimeout(r, 2500));
   // Return the best probability label
   return `${labelName} (${Math.floor(probability * 100)}%)`;
 }
@@ -117,80 +117,6 @@ export function resizeImage(imgElement){
 
   return img;
 }
-
-/*export async function gradCamOverlay(imgElement, canvas){
-  // tf.browser.fromPixels() returns a Tensor from an image element.
-  const img = tf.browser.fromPixels(imgElement, 1);
-
-  // Normalize the image from [0, 225] to [INPUT_MIN, INPUT_MAX]
-  const normalizationConstant = 1.0 / 255.0;
-  const normalized = img.toFloat().mul(normalizationConstant);
-
-  const image = tf.image.resizeBilinear(normalized, [IMAGE_SIZE, IMAGE_SIZE], false);
-  // Reshape to a single-element batch so we can pass it to predict.
-  const batched = image.reshape([-1, IMAGE_SIZE, IMAGE_SIZE, 1]);
-
-  // Calculate Grad-CAM heatmap.
-  const xWithCAMOverlay = cam.gradClassActivationMap(model, 1, batched);
-
-  // const imageH = xWithCAMOverlay.shape[1];
-  // const imageW = xWithCAMOverlay.shape[2];
-  // let imageData = xWithCAMOverlay.dataSync();
-
-  const ctx = canvas.getContext('2d');
-  //get the tensor shape
-  const [height, width] = xWithCAMOverlay.shape;
-  //create a buffer array
-  const buffer = new Uint8Array(width * height * 4)
-  //create an Image data var
-  const imageData = new ImageData(width, height);
-  //get the tensor values as data
-  const data = xWithCAMOverlay.dataSync();
-
-  //map the values to the buffer
-  var i = 0;
-  for(var y = 0; y < height; y++) {
-    for(var x = 0; x < width; x++) {
-      var pos = (y * width + x) * 4;      // position in buffer based on x and y
-      buffer[pos  ] = data[i]             // some R value [0, 255]
-      buffer[pos+1] = data[i+1]           // some G value
-      buffer[pos+2] = data[i+2]           // some B value
-      buffer[pos+3] = 255;                // set alpha channel
-      i+=3
-    }
-  }
-
-  let index = 0;
-  for (let i = 0; i < height; ++i) {
-    for (let j = 0; j < width; ++j) {
-      const inIndex = 3 * (i * height + j);
-      buffer.set([Math.floor(data[inIndex])], index++);
-      buffer.set([Math.floor(data[inIndex + 1])], index++);
-      buffer.set([Math.floor(data[inIndex + 2])], index++);
-      buffer.set([255], index++);
-    }
-  }
-
-  //set the buffer to the image data
-  imageData.data.set(buffer)
-
-  //show the image on canvas
-  ctx.putImageData(imageData, 0, 0);
-
-  const imageEl = new Image();
-  imageEl.onload = function() {
-    ctx.drawImage(image, 0, 0);
-  };
-
-  new jimp({data: new Buffer(buffer), width: width, height: height}, function (err, image) {
-    image.getBase64(jimp.AUTO, function(err, data) {  // Add err
-      console.log(data);
-      imageEl.src = data;
-    });
-  });
-
-  // return tf.browser.toPixels(imageData);
-}*/
 
 
 export const classNames = ['Alfalfa', 'Asparagus', 'Blue Vervain', 'Broadleaf Plantain', 'Bull Thistle', 'Cattail', 'Chickweed', 'Chicory', 'Cleavers', 'Coltsfoot', 'Common Sow Thistle', 'Common Yarrow', 'Coneflower', 'Creeping Charlie', 'Crimson Clover', 'Curly Dock', 'Daisy Fleabane', 'Dandellion', 'Downy Yellow Violet', 'Elderberry', 'Evening Primrose', 'Fern Leaf Yarrow', 'Field Pennycress', 'Fireweed', 'Forget Me Not', 'Garlic Mustard', 'Harebell', 'Henbit', 'Herb Robert', 'Japanese Knotweed', 'Joe Pye Weed', 'Knapweed', 'Kudzu', 'Lambs Quarters', 'Mallow', 'Mayapple', 'Meadowsweet', 'Milk Thistle', 'Mullein', 'New England Aster', 'Partridgeberry', 'Peppergrass', 'Pickerelweed', 'Pineapple Weed', 'Prickly Pear Cactus', 'Purple Deadnettle', 'Queen Annes Lace', 'Red Clover', 'Sheep Sorrel', 'Shepherds Purse', 'Spring Beauty', 'Sunflower', 'Supplejack Vine', 'Tea Plant', 'Teasel', 'Toothwort', 'Vervain Mallow', 'Wild Bee Balm', 'Wild Black Cherry', 'Wild Grape Vine', 'Wild Leek', 'Wood Sorrel'];
