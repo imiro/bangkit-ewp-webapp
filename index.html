@@ -1,0 +1,136 @@
+<!doctype html>
+
+<head>
+  <title>Edible Wild Plants</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="spinkit.css" />
+</head>
+
+<style>
+  .pred-container {
+    margin-bottom: 20px;
+  }
+
+  .pred-container > div {
+    display: inline-block;
+    margin-right: 20px;
+    vertical-align: top;
+  }
+
+  .row {
+    display: table-row;
+  }
+  .cell {
+    display: table-cell;
+    padding-right: 20px;
+  }
+
+  #file-container {
+    margin-bottom: 20px;
+  }
+
+  #imgfile {
+    width: 0.1px;
+  	height: 0.1px;
+  	opacity: 0;
+  	overflow: hidden;
+  	position: absolute;
+  	z-index: -1;
+  }
+
+  #imgfile + label {
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 10;
+  }
+
+  #imgfile:focus + label {
+    outline: 1px dotted #000;
+    outline: -webkit-focus-ring-color auto 5px;
+  }
+
+  #placeholder {
+    max-width: 100%;
+  }
+
+  @media(min-width: 992px) {
+    #placeholder {
+      max-width: 700px;
+    }
+  }
+
+  #result-section {
+    padding: 5px;
+  }
+
+  #prediction-result {
+    font-weight: bold;
+  }
+</style>
+
+<body>
+
+  <div class="tfjs-example-container">
+    <section class='title-area'>
+      <h1>JKT1-D: Edible Wild Plants</h1>
+    </section>
+
+    <section>
+      <!-- <p class='section-head'>Description</p> -->
+      <!-- <p>
+        This demo uses the Keras with 7 Layers of Conv2D, to learn xray images and predict pneumonia.
+
+        Dataset source from <a
+          href="https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia">Kaggle</a>.
+      </p> -->
+      <p>
+        A simple tool to help you live the wild life.
+      </p>
+    </section>
+
+    <section id='status'>
+      <p class='section-head'>Status</p>
+      <div style='margin: 20px auto 0;'>Please wait, loading model...</div>
+      <div class="spinner">
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+      </div>
+    </section>
+
+    <section>
+      <!-- <p>Take/choose a picture</p> -->
+
+      <div id='imgfile-container' style='margin: 0 auto;display: none;'>
+        <input id='imgfile' type="file" accept="image/*">
+        <label for='imgfile' class='mdc-button mdc-button--unelevated'>
+          <span class="mdc-button__ripple"></span> Pilih Gambar
+        </label>
+      </div>
+    </section>
+
+    <section id='result-section' style='display: none;'>
+      <p class='section-head'>Prediction Result</p>
+      <div class='loading'>
+        <div class="spinner">
+          <div class="bounce1"></div>
+          <div class="bounce2"></div>
+          <div class="bounce3"></div>
+        </div>
+        <span class='mdc-typography mdc-typography--caption'
+              style='display: table; margin: 10px auto;'>
+              Calculating...
+        </span>
+      </div>
+      <div style='display: table; margin: auto;'>
+        <div id='prediction-result' class='mdc-typography mdc-typography--body'></div>
+        <img id='placeholder' />
+      </div>
+    </section>
+
+    <script src="lib.js"></script>
+    <script src="index.js"></script>
+  </div>
+</body>
