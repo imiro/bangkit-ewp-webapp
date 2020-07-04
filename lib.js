@@ -17,28 +17,29 @@ export const loadModel = async () => {
   console.log('loading model....');
 
   // mobilenet
-  console.log('loading mobilenetv1')
-  model = await tf.loadLayersModel('https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json', {});
+  // console.log('loading mobilenetv1')
+  // model = await tf.loadLayersModel('https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json', {});
+  //
+  // let response = await fetch('https://raw.githubusercontent.com/leferrad/tensorflow-mobilenet/master/imagenet/labels.txt')
+  // let tresp = await response.text()
+  // labels = tresp.split('\n')
+  // model.summary(); // TODO remove from production
+  // return;
 
-  let response = await fetch('https://raw.githubusercontent.com/leferrad/tensorflow-mobilenet/master/imagenet/labels.txt')
-  let tresp = await response.text()
-  labels = tresp.split('\n')
-  model.summary(); // TODO remove from production
-  return;
-  // await tf.setBackend('wasm');
-  model = await tf.loadLayersModel(MODEL_PATH, {});
+  model = await tf.loadGraphModel(MODEL_PATH, {});
+  labels = classNames;
 
   // Warmup the model. This isn't necessary, but makes the first prediction
   // faster. Call `dispose` to release the WebGL memory allocated for the return
   // value of `predict`.
-  model.predict(tf.zeros([1, IMAGE_SIZE, IMAGE_SIZE, 1])).dispose();
+  model.predict(tf.zeros([1, IMAGE_SIZE, IMAGE_SIZE, 3])).dispose();
 
   // Show model layers and summary
-  model.summary();
+  // model.summary();
 };
 
 export const clearModelMemory = () => {
-  model.predict(tf.zeros([1, IMAGE_SIZE, IMAGE_SIZE, 1])).dispose();
+  model.predict(tf.zeros([1, IMAGE_SIZE, IMAGE_SIZE, 3])).dispose();
 };
 
 /**
@@ -80,16 +81,26 @@ export async function predict(imgElement) {
 
   // Convert logits to probabilities and class names.
   // NOTE i think this is a 'hack' as tf.tidy() does not allow promises as return value
+  // NOTE actually .data() really returns promise, while .dataSync() returns value
   const classes = await logits.data();
 
   // console.log('Predictions: ', classes);
-  console.log('predicted class')
-  logits.as1D().argMax().print()
+  // console.log('predicted class')
+  // logits.as1D().argMax().print()
 
-  const predictedClass = logits.as1D().argMax().dataSync()[0] + 1;
-  // const labelName = classes[predictedClass] < 0.5? 'NORMAL' : 'PNEUMONIA';
+  // top1
+  const predictedClass = logits.as1D().argMax().dataSync()[0];
   const labelName = labels[predictedClass];
   const probability = classes[predictedClass];
+
+  // top3
+  // indices are class, values are probabilities
+  const {values: top3Values, indices: top3Indices} = tf.topk(logits.as1D(), 3);
+  const top3ValuesArray = top3Values.dataSync();
+  const top3IndicesArray = top3Indices.dataSync();
+
+  let predictedClasses = []
+  top3IndicesArray.forEach(val => predictedClasses.push(labels[val]))
 
   const totalTime1 = performance.now() - startTime1;
   const totalTime2 = performance.now() - startTime2;
@@ -97,7 +108,9 @@ export async function predict(imgElement) {
       `(not including preprocessing: ${Math.floor(totalTime2)} ms)`);
 
   // await new Promise(r => setTimeout(r, 2500));
-  // Return the best probability label
+  return {classes: predictedClasses,
+          probabilities: top3ValuesArray}
+
   return `${labelName} (${Math.floor(probability * 100)}%)`;
 }
 

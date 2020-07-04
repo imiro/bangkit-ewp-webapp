@@ -28,7 +28,7 @@ import { IMAGE_SIZE, loadModel, predict } from './lib';
 
 (async function () {
     tfjsWasm.setWasmPath(`https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm@2.0.0/dist/tfjs-backend-wasm.wasm`)
-    await tf.setBackend('wasm')
+    // await tf.setBackend('wasm')
 
     await loadModel()
     console.log('model loaded')
@@ -76,8 +76,22 @@ function imgfileChangeHandler(evt) {
         predictElem.innerText = '';
         predict(imgElem).then(p => {
           // display prediction result
+          console.log('p', p)
           resultSectionElem.querySelector('.loading').style.display='none';
-          predictElem.innerText = p;
+          if(typeof p === 'string')
+            predictElem.innerText = `<span class='prediction-top1'>${p}</span>`;
+          else {
+            let {classes, probabilities} = p;
+            let output = classes.reduce((html,val,i) => {
+              if(!i) html += "<span class='prediction-top1'>"
+              else html += "<br/>"
+              html += `${val} (${Math.floor(probabilities[i] * 100)}%)`
+              if(!i) html += "</span>"
+              return html
+            },"")
+            console.log('c-p', classes, probabilities)
+            predictElem.innerHTML = output
+          }
         })
       }
     };
